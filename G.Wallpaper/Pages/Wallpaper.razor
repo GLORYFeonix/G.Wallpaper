@@ -1,0 +1,47 @@
+﻿@page "/wallpaper"
+
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+
+@using G.Wallpaper.Data
+
+<h1>Wallpaper</h1>
+
+<p>This component demonstrates fetching wallpaper from bing service.</p>
+
+<button @onclick="GetWallpaperAsync">Get</button>
+<button @onclick="DownloadWallpaperAsync">Download</button>
+
+<img src="@uri" width="768" height="432" />
+
+@code {
+    private HttpClient client = new();
+    private Uri uri;
+
+    private async void GetWallpaperAsync()
+    {
+        var response = await client.GetAsync("https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN");
+
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        JObject jsonData = (JObject)JsonConvert.DeserializeObject(json)!;
+
+        uri = new($"https://cn.bing.com/{jsonData["images"][0]["url"]}");
+    }
+
+    private async void DownloadWallpaperAsync()
+    {
+        var response = await client.GetAsync(uri);
+
+        response.EnsureSuccessStatusCode();
+
+        //var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"picture.jpg");
+        var path = Path.Combine("C:\\Users\\GFeonix\\Desktop\\G.Wallpaper\\G.Wallpaper\\Pictures\\picture.jpg");
+        Console.WriteLine($"Path: {path}");
+
+        var fileStream = new FileStream(path, FileMode.OpenOrCreate);
+        await response.Content.CopyToAsync(fileStream);
+        Console.WriteLine($"Download from {uri}, done!");
+    }
+}
