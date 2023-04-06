@@ -5,18 +5,31 @@
 
 @using G.Wallpaper.Data
 
-<h1>Wallpaper</h1>
+<Select TItem="string"
+        TItemValue="string"
+        DataSource="@sources"
+        @bind-Value="@_selectedValue"
+        Style="width: 120px;"
+        Placeholder="Choose"
+        OnSelectedItemChanged="@((source) => Console.WriteLine($"selectedItem:{source},selectedValue:{_selectedValue}"))">
+</Select>
 
-<p>This component demonstrates fetching wallpaper from bing service.</p>
+<Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.Outline.Search" OnClick="GetWallpaperAsync" />
+<Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.Outline.Download" OnClick="DownloadWallpaperAsync" />
 
-<button @onclick="GetWallpaperAsync">Get</button>
-<button @onclick="DownloadWallpaperAsync">Download</button>
-
-<img src="@uri" width="768" height="432" />
+<Image Width="768px" Height="432px" Src="@uri.ToString()" Preview="false" Fallback="C:\\Users\\GFeonix\\Desktop\\G.Wallpaper\\G.Wallpaper\\Pictures\\fafa1.jpg" />
 
 @code {
+    private List<string> sources = new() { "Bing", "Unplash" };
+    private string _selectedValue = "Bing";
+
     private HttpClient client = new();
-    private Uri uri;
+    private Uri uri = new("C:\\Users\\GFeonix\\Desktop\\G.Wallpaper\\G.Wallpaper\\Pictures\\fafa.jpg");
+
+    protected override async void OnInitialized()
+    {
+        
+    }
 
     private async void GetWallpaperAsync()
     {
